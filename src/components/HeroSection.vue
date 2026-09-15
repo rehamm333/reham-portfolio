@@ -4,6 +4,7 @@
  * page-wide CursorGlow. Purely decorative, disabled with reduced motion.
  */
 import { onMounted, onUnmounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const hero = ref(null)
 const shape = ref(null)
@@ -18,9 +19,37 @@ function onMove(e) {
 
 const emit = defineEmits(['open-contact'])
 
+const typedPlain = ref('')
+const typedAccent = ref('')
+const showCursor = ref(true)
+
+const plainText = "Hi, I'm "
+const accentText = 'Reham'
+const fullLength = plainText.length + accentText.length
+
+function typeGreeting() {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduced) {
+    typedPlain.value = plainText
+    typedAccent.value = accentText
+    return
+  }
+  let count = 0
+  const timer = setInterval(() => {
+    count++
+    if (count <= plainText.length) {
+      typedPlain.value = plainText.slice(0, count)
+    } else {
+      typedAccent.value = accentText.slice(0, count - plainText.length)
+    }
+    if (count >= fullLength) clearInterval(timer)
+  }, 70)
+}
+
 onMounted(() => {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (!reduced) hero.value?.addEventListener('pointermove', onMove)
+  typeGreeting()
 })
 
 onUnmounted(() => {
@@ -48,7 +77,7 @@ onUnmounted(() => {
       <h1 class="hero-title">
         <span class="bracket">&lt;div&gt;</span>
         <span class="code-block">
-          <span class="code-line">👋 Hi, I'm <span class="accent-word">Reham</span></span>
+          <span class="code-line">👋 {{ typedPlain }}<span class="accent-word">{{ typedAccent }}</span><span class="type-cursor">|</span></span>
           <span class="code-line">I like making interactive things with code.</span>
           <span class="code-line">I also <span class="accent-word">design</span> &amp; <span class="accent-word">build</span> experiences</span>
           <span class="code-line">that feel simple, smooth &amp; enjoyable.</span>
@@ -56,7 +85,7 @@ onUnmounted(() => {
         <span class="bracket">&lt;/div&gt;</span>
       </h1>
       <div class="hero-actions">
-        <a href="#projects" class="btn btn-primary">See my projects</a>
+        <RouterLink :to="{ path: '/', hash: '#projects' }" class="btn btn-primary">See my projects</RouterLink>
         <button type="button" class="btn btn-ghost" @click="emit('open-contact')">Work with me</button>
       </div>
     </div>
@@ -131,6 +160,25 @@ onUnmounted(() => {
 
 .accent-word {
   color: var(--accent);
+}
+
+.type-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--accent);
+  animation: cursor-blink 1s step-end infinite;
+}
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .type-cursor {
+    animation: none;
+  }
 }
 
 .hero-actions {

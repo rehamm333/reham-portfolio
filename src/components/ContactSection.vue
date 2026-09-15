@@ -3,6 +3,8 @@ import githubIcon from '@/assets/icons/github.svg'
 import whatsappIcon from '@/assets/icons/whatsapp-icon.svg'
 import emailIcon from '@/assets/icons/email-square-icon.svg'
 
+const cvUrl = `${import.meta.env.BASE_URL}Reham-Alamri-CV.pdf`
+
 const socials = [
   {
     label: 'Email',
@@ -113,7 +115,7 @@ const socials = [
 
         <!-- CV -->
         <a
-          href="/Reham-Alamri-CV.pdf"
+          :href="cvUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="cv-button"
